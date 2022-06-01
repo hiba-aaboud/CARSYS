@@ -13,9 +13,12 @@ class adminInt extends StatefulWidget {
 
 class _adminIntState extends State<adminInt> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _latitude = TextEditingController();
-  TextEditingController _longitude = TextEditingController();
-  TextEditingController _prix = TextEditingController();
+  String stationId = DateTime.now().millisecondsSinceEpoch.toString();
+  late double latitude;
+  late double longitude;
+  late double prixg;
+  late double prixe;
+  TextEditingController _station = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +41,7 @@ class _adminIntState extends State<adminInt> {
           ],
         ),
         body: Container(
-            width: double.infinity,
+            padding: const EdgeInsets.all(20),
             child: Stack(alignment: Alignment.center, children: [
               SingleChildScrollView(
                 child: Column(
@@ -55,49 +58,146 @@ class _adminIntState extends State<adminInt> {
                         fontSize: 30,
                       ),
                     ),
-                    SizedBox(
-                      height: 100,
+                    const SizedBox(
+                      height: 60,
                     ),
-                    TextField(
-                        decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text('Entrez latitude'),
-                    )),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                        decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text('Entrez longitude'),
-                    )),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                        decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      label: Text('Entrez le prix'),
-                    )),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _station,
+                            decoration: InputDecoration(
+                              hintText: 'Entrez Nom de la station',
+                              prefixIcon: const Icon(Icons.gas_meter),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      latitude = double.parse(value);
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Latitude',
+                                    prefixIcon: const Icon(Icons.place),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                child: TextFormField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      longitude = double.parse(value);
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Longitude',
+                                    prefixIcon: const Icon(Icons.place),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFormField(
+                            onChanged: (value) {
+                              setState(() {
+                                prixg = double.parse(value);
+                              });
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.price_check),
+                              hintText: 'Prix Gasoil',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFormField(
+                            onChanged: (value) {
+                              setState(() {
+                                prixe = double.parse(value);
+                              });
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.price_check),
+                              hintText: 'Prix Essence',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  saveplaces();
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                            ),
+                            child: const Text(
+                              'Ajouter',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Ajouter',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    )
                   ],
                 ),
               )
             ])));
+  }
+
+  void saveplaces() async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    await firebaseFirestore.collection("stations").doc(stationId).set({
+      'nom station': _station.text,
+      'locations': GeoPoint(latitude, longitude),
+      'prix gasoil': prixg,
+      'prix essence': prixe,
+    });
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(title: 'Login UI'),
+      ),
+    );
   }
 
   Future<void> logout(BuildContext context) async {
@@ -106,7 +206,7 @@ class _adminIntState extends State<adminInt> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const LoginPage(title: 'Login UI'),
+        builder: (context) => const adminInt(title: 'admin UI'),
       ),
     );
   }

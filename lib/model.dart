@@ -5,7 +5,7 @@ class UserModel {
   String? nom;
   String? uid;
 
-// receiving data
+// recevoir data
   UserModel({this.uid, this.email, this.prenom, this.nom});
   factory UserModel.fromMap(map) {
     return UserModel(
@@ -15,7 +15,7 @@ class UserModel {
       nom: map['nom'],
     );
   }
-// sending data
+// envoyer data
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
