@@ -1,115 +1,147 @@
+// ignore_for_file: non_constant_identifier_names
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'login.dart';
+import 'package:geolocator/geolocator.dart';
 
-class CurrentLocationPage extends StatefulWidget {
-  const CurrentLocationPage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
+class MyMap extends StatefulWidget {
+  const MyMap({Key? key}) : super(key: key);
   @override
-  _CurrentLocationPageState createState() => _CurrentLocationPageState();
+  State<MyMap> createState() => _MyMapState();
 }
 
-class _CurrentLocationPageState extends State<CurrentLocationPage> {
-  late GoogleMapController googleMapController;
+class _MyMapState extends State<MyMap> {
+  Set<Marker> positions = <Marker>{};
 
-  static const CameraPosition initialCameraPosition = CameraPosition(
-      target: LatLng(37.42796133580664, -122.085749655962), zoom: 14);
+  Set<Polyline> polylines = <Polyline>{};
+  List<LatLng> polylineCoordinates = [];
+  late PolylinePoints polylinePoints;
 
-  Set<Marker> markers = {};
+  @override
+  void initState() {
+    super.initState();
+    polylinePoints = PolylinePoints();
+    setInitialLocation();
+  }
+
+  late LatLng currentPosition;
+  late LatLng destloc;
+
+  LatLng destination = const LatLng(33.97517863904228, -6.885252188125281);
+
+  Future<void> setInitialLocation() async {
+    Position userPosition = await determinePosition();
+    currentPosition = LatLng(userPosition.latitude, userPosition.longitude);
+
+    destloc = LatLng(destination.latitude, destination.longitude);
+  }
+
+  Set<Circle> cercles = {
+    Circle(
+      circleId: const CircleId('1'),
+      center: const LatLng(33.971588, -6.849813),
+      radius: 300,
+      fillColor: Colors.blue.shade100.withOpacity(0.6),
+      strokeColor: Colors.blue.shade100.withOpacity(0.3),
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () {
-                logout(context);
-              },
-              icon: Icon(
-                Icons.logout,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-        body: GoogleMap(
-          initialCameraPosition: initialCameraPosition,
-          markers: markers,
-          zoomControlsEnabled: false,
-          mapType: MapType.normal,
-          onMapCreated: (GoogleMapController controller) {
-            googleMapController = controller;
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white,
-          onPressed: () async {
-            Position position = await _determinePosition();
-
-            googleMapController.animateCamera(CameraUpdate.newCameraPosition(
-                CameraPosition(
-                    target: LatLng(position.latitude, position.longitude),
-                    zoom: 14)));
-
-            markers.clear();
-
-            markers.add(Marker(
-                markerId: const MarkerId('currentLocation'),
-                position: LatLng(position.latitude, position.longitude)));
-
-            setState(() {});
-          },
-          child: Icon(
-            Icons.gps_fixed,
-            color: Colors.blue,
-          ),
-        ));
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled');
-    }
-
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-
-      if (permission == LocationPermission.denied) {
-        return Future.error("Location permission denied");
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
-    }
-
-    Position position = await Geolocator.getCurrentPosition();
-
-    return position;
-  }
-
-  Future<void> logout(BuildContext context) async {
-    CircularProgressIndicator();
-    await FirebaseAuth.instance.signOut();
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const LoginPage(title: 'Login UI'),
+      appBar: AppBar(
+        title: const Text('Flutter Google Maps'), // Titre app
       ),
+      body: Stack(children: [
+        GoogleMap(
+          mapType: MapType.normal,
+          compassEnabled: true,
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(33.971588, -6.849813),
+            zoom: 14.4746,
+          ),
+          onMapCreated: (GoogleMapController controller) {
+            setPolylines();
+            setState(() async {
+              positions.add(
+                const Marker(
+                  markerId: MarkerId('1'),
+                  position: LatLng(33.971588, -6.849813), // Position du marker
+                  infoWindow: InfoWindow(
+                    title: '14.38 dhs',
+                    snippet: 'Station SetupSys',
+                  ),
+                ),
+              );
+
+              positions.add(Marker(
+                markerId: const MarkerId('sourcePin'),
+                position: currentPosition,
+                icon: BitmapDescriptor.defaultMarker,
+              ));
+
+              BitmapDescriptor gas = await BitmapDescriptor.fromAssetImage(
+                const ImageConfiguration(),
+                "images/gasstation.jpg",
+              );
+
+              positions.add(Marker(
+                markerId: const MarkerId('destinationPin'),
+                position: destination,
+                icon: gas,
+              ));
+            });
+          },
+          markers: positions,
+          circles: cercles,
+          polylines: polylines,
+        ),
+      ]),
     );
+  } // Widget
+
+  void setPolylines() async {
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+        "AIzaSyBMbtqTNFieUhAsur29bfL51bRtNJWmb7c",
+        PointLatLng(currentPosition.latitude, currentPosition.longitude),
+        PointLatLng(destination.latitude, destination.longitude));
+
+    if (result.status == 'OK') {
+      for (var point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+
+      setState(() {
+        polylines.add(Polyline(
+            width: 10,
+            polylineId: const PolylineId('route'),
+            color: const Color(0xFF08A5CB),
+            points: polylineCoordinates));
+      });
+    }
   }
+}
+
+Future<Position> determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled'); // Service disabled
+  }
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error("Location permission denied"); // Permission denied
+    }
+  }
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error('Location permissions are permanently denied');
+  }
+  Position userPosition = await Geolocator.getCurrentPosition();
+  return userPosition;
 }

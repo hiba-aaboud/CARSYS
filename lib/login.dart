@@ -127,9 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CurrentLocationPage(
-                                              title: 'Location UI'),
+                                      builder: (context) => const MyMap(),
                                     ),
                                   );
                                 } on FirebaseAuthException catch (e) {
