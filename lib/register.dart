@@ -15,11 +15,10 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _auth = FirebaseAuth.instance;
-  TextEditingController _emailcontroller = TextEditingController();
-  TextEditingController _passwordcontroller = TextEditingController();
-  final TextEditingController _nom = new TextEditingController();
-  final TextEditingController _prenom = new TextEditingController();
+  final TextEditingController _emailcontroller = TextEditingController();
+  final TextEditingController _passwordcontroller = TextEditingController();
+  final TextEditingController _nom = TextEditingController();
+  final TextEditingController _prenom = TextEditingController();
 
   CollectionReference ref = FirebaseFirestore.instance.collection('users');
   @override
@@ -27,6 +26,13 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Container(
+            width: 700.0,
+            height: 1100.0,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/interface.jpg'),
+                  fit: BoxFit.cover),
+            ),
             padding: const EdgeInsets.all(20),
             child: Stack(alignment: Alignment.center, children: [
               SingleChildScrollView(
@@ -34,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 150,
                       ),
                       const Text(
@@ -195,6 +201,7 @@ class _RegisterPageState extends State<RegisterPage> {
         .doc(user.uid)
         .set(userModel.toMap());
 
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

@@ -10,6 +10,7 @@ class adminInt extends StatefulWidget {
   State<adminInt> createState() => _adminIntState();
 }
 
+// ignore: camel_case_types
 class _adminIntState extends State<adminInt> {
   final _formKey = GlobalKey<FormState>();
   String stationId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -17,14 +18,15 @@ class _adminIntState extends State<adminInt> {
   late double longitude;
   late double prixg;
   late double prixe;
-  TextEditingController _station = TextEditingController();
+  final TextEditingController _station = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.primary,
-          title: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          title:
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
             Text(
               "Admin",
               style: TextStyle(color: Colors.white),
@@ -35,7 +37,7 @@ class _adminIntState extends State<adminInt> {
               onPressed: () {
                 logout(context);
               },
-              icon: Icon(Icons.logout),
+              icon: const Icon(Icons.logout),
             ),
           ],
         ),
@@ -46,10 +48,10 @@ class _adminIntState extends State<adminInt> {
                 child: Column(
                   // ignore: prefer_const_literals_to_create_immutables
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 80,
                     ),
-                    Text(
+                    const Text(
                       "Ajouter une position",
                       style: TextStyle(
                         color: Colors.white,
@@ -192,6 +194,7 @@ class _adminIntState extends State<adminInt> {
       'prix gasoil': prixg,
       'prix essence': prixe,
     });
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const LoginPage(title: 'Login UI'),
@@ -200,12 +203,13 @@ class _adminIntState extends State<adminInt> {
   }
 
   Future<void> logout(BuildContext context) async {
-    CircularProgressIndicator();
+    const CircularProgressIndicator();
     await FirebaseAuth.instance.signOut();
 
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const adminInt(title: 'admin UI'),
+        builder: (context) => const LoginPage(title: 'admin UI'),
       ),
     );
   }

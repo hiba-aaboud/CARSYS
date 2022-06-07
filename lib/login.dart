@@ -21,35 +21,28 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Espace utilisateur",
-                style: TextStyle(color: Colors.black),
-              )
-            ],
+        backgroundColor: Colors.transparent,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const AdminPage(title: 'Admin UI')));
+          },
+          elevation: 0.0,
+          child: new Icon(
+            Icons.lock,
           ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const AdminPage(title: 'Admin UI')));
-                },
-                icon: Icon(
-                  Icons.lock,
-                  color: Colors.black,
-                  size: 30,
-                )),
-          ],
+          backgroundColor: Color(0x8cc63f),
         ),
         body: Container(
+            width: 700.0,
+            height: 1100.0,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/login.jpg'),
+                  fit: BoxFit.cover),
+            ),
             padding: const EdgeInsets.all(20),
             child: Stack(alignment: Alignment.center, children: [
               SingleChildScrollView(
@@ -58,14 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: 150,
-                      ),
-                      const Text(
-                        'Se connecter',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
-                        ),
+                        height: 130,
                       ),
                       const SizedBox(
                         height: 60,
@@ -143,11 +129,14 @@ class _LoginPageState extends State<LoginPage> {
                             style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                              shadowColor: Colors.white,
+                              primary: Color.fromARGB(255, 242, 241, 245),
                             ),
                             child: const Text(
                               'Se connecter',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 1, 12, 20),
                               ),
                             ),
                           ),
@@ -168,7 +157,12 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   );
                                 },
-                                child: const Text('Creer un compte'),
+                                child: const Text(
+                                  'Créer un compte',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 1, 12, 20),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

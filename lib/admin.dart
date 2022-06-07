@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_new
+
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:station_app/interfaceadmin.dart';
@@ -13,41 +15,33 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _email = TextEditingController();
-  TextEditingController _password = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Administration",
-                style: TextStyle(color: Colors.black),
-              )
-            ],
+        backgroundColor: Colors.transparent,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const LoginPage(title: 'Login UI')));
+          },
+          elevation: 0.0,
+          child: new Icon(
+            Icons.person,
           ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const LoginPage(title: 'Login UI'),
-                      ));
-                },
-                icon: Icon(
-                  Icons.person_outline,
-                  color: Colors.black,
-                  size: 30,
-                )),
-          ],
+          backgroundColor: Color(0x00c4ff),
         ),
         body: Container(
+            width: 700.0,
+            height: 1100.0,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/login.jpg'),
+                  fit: BoxFit.cover),
+            ),
             padding: const EdgeInsets.all(20),
             child: Stack(alignment: Alignment.center, children: [
               SingleChildScrollView(
@@ -55,18 +49,11 @@ class _AdminPageState extends State<AdminPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 150,
-                    ),
-                    const Text(
-                      'Admin Login',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40,
-                      ),
+                    const SizedBox(
+                      height: 110,
                     ),
                     const SizedBox(
-                      height: 60,
+                      height: 30,
                     ),
                     Form(
                       key: _formKey,
@@ -109,7 +96,7 @@ class _AdminPageState extends State<AdminPage> {
                             ),
                           ),
                           const SizedBox(
-                            height: 20,
+                            height: 28,
                           ),
                           ElevatedButton(
                             onPressed: () async {
@@ -120,9 +107,9 @@ class _AdminPageState extends State<AdminPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.fromLTRB(40, 15, 40, 15),
-                            ),
+                                padding:
+                                    const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                                primary: Colors.white),
                             child: const Text(
                               'Se connecter',
                               style: TextStyle(
@@ -148,6 +135,7 @@ class _AdminPageState extends State<AdminPage> {
         if (element.get("password") != _password.text) {
           print("mdp incorrecte");
         } else {
+          // ignore: avoid_print
           print("bonjour");
         }
         setState(() {
@@ -158,7 +146,7 @@ class _AdminPageState extends State<AdminPage> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => adminInt(title: 'admin int')));
+                builder: (context) => const adminInt(title: 'admin int')));
       });
     });
   }
