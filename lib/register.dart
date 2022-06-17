@@ -1,3 +1,5 @@
+import 'package:station_app/verifyemail.dart';
+
 import 'model.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,13 +16,17 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  bool _isObscure3 = true;
+  bool visible = false;
   final _formKey = GlobalKey<FormState>();
+  final _auth = FirebaseAuth.instance;
   final TextEditingController _emailcontroller = TextEditingController();
   final TextEditingController _passwordcontroller = TextEditingController();
   final TextEditingController _nom = TextEditingController();
   final TextEditingController _prenom = TextEditingController();
 
   CollectionReference ref = FirebaseFirestore.instance.collection('users');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(
-                        height: 150,
+                        height: 70,
                       ),
                       const Text(
                         'Inscription',
@@ -117,8 +123,18 @@ class _RegisterPageState extends State<RegisterPage> {
                               return null;
                             },
                             maxLines: 1,
-                            obscureText: true,
+                            //obscureText: true,
+                            obscureText: _isObscure3,
                             decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                  icon: Icon(_isObscure3
+                                      ? Icons.visibility_off
+                                      : Icons.visibility),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isObscure3 = !_isObscure3;
+                                    });
+                                  }),
                               prefixIcon: const Icon(Icons.lock),
                               hintText: 'Entrez votre mot de passe',
                               border: OutlineInputBorder(
@@ -129,24 +145,27 @@ class _RegisterPageState extends State<RegisterPage> {
                           const SizedBox(
                             height: 20,
                           ),
-                          ElevatedButton(
+                          ElevatedButton.icon(
+                            icon: Icon(
+                              Icons.app_registration_outlined,
+                              color: Color.fromARGB(255, 0, 10, 19),
+                              size: 24.0,
+                            ),
                             onPressed: () async {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  signUp(
-                                    _emailcontroller.text,
-                                    _passwordcontroller.text,
-                                    _nom.text,
-                                    _prenom.text,
-                                  );
-                                });
-                              }
+                              signUp(
+                                _emailcontroller.text,
+                                _passwordcontroller.text,
+                                _nom.text,
+                                _prenom.text,
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                              shadowColor: Colors.white,
+                              primary: Color.fromARGB(255, 242, 241, 245),
                             ),
-                            child: const Text(
+                            label: const Text(
                               'Inscription',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -159,19 +178,31 @@ class _RegisterPageState extends State<RegisterPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('Déja un compte?'),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginPage(title: 'Login UI'),
-                                    ),
-                                  );
-                                },
-                                child: const Text('Se connecter'),
+                              const Text(
+                                'Déja un compte?',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 18,
+                                ),
                               ),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginPage(title: 'Login UI'),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Se connecter',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      color: Color.fromARGB(255, 1, 12, 20),
+                                      fontSize: 18,
+                                    ),
+                                  )),
                             ],
                           ),
                         ]),
@@ -182,30 +213,36 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void signUp(String email, String password, String nom, String prenom) async {
-    await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((value) => {postDetailsToFirestore(email, nom, prenom)})
-        .catchError((e) {});
+    CircularProgressIndicator();
+    if (_formKey.currentState!.validate()) {
+      await _auth
+          .createUserWithEmailAndPassword(
+              email: email.trim(), password: password.trim())
+          .then(
+              (value) => {postDetailsToFirestore(email, nom, prenom, password)})
+          .catchError((e) {});
+    }
   }
 
-  postDetailsToFirestore(String email, String nom, String prenom) async {
+  postDetailsToFirestore(
+      String email, String nom, String prenom, String password) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    User? user = FirebaseAuth.instance.currentUser;
+    User? user = _auth.currentUser;
     UserModel userModel = UserModel();
     userModel.email = email;
     userModel.uid = user!.uid;
     userModel.nom = nom;
+    userModel.password = password;
     userModel.prenom = prenom;
     await firebaseFirestore
         .collection("users")
         .doc(user.uid)
         .set(userModel.toMap());
-
     // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const LoginPage(title: 'Login UI'),
+        builder: (context) => verify(),
       ),
     );
   }

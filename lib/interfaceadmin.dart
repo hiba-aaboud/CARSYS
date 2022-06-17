@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:station_app/bienvenu.dart';
+import 'package:station_app/check.dart';
 import 'login.dart';
+import 'check.dart';
 
 class adminInt extends StatefulWidget {
   const adminInt({Key? key, required this.title}) : super(key: key);
@@ -19,12 +23,13 @@ class _adminIntState extends State<adminInt> {
   late double prixg;
   late double prixe;
   final TextEditingController _station = TextEditingController();
+  final TextEditingController _address = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Color.fromARGB(255, 2, 35, 84),
           title:
               Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
             Text(
@@ -35,6 +40,16 @@ class _adminIntState extends State<adminInt> {
           actions: [
             IconButton(
               onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => bienvenu(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.person),
+            ),
+            IconButton(
+              onPressed: () {
                 logout(context);
               },
               icon: const Icon(Icons.logout),
@@ -42,6 +57,13 @@ class _adminIntState extends State<adminInt> {
           ],
         ),
         body: Container(
+            width: 450.0,
+            height: 740.0,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/font.jpg'),
+                  fit: BoxFit.cover),
+            ),
             padding: const EdgeInsets.all(20),
             child: Stack(alignment: Alignment.center, children: [
               SingleChildScrollView(
@@ -49,7 +71,7 @@ class _adminIntState extends State<adminInt> {
                   // ignore: prefer_const_literals_to_create_immutables
                   children: [
                     const SizedBox(
-                      height: 80,
+                      height: 15,
                     ),
                     const Text(
                       "Ajouter une position",
@@ -71,6 +93,19 @@ class _adminIntState extends State<adminInt> {
                             decoration: InputDecoration(
                               hintText: 'Entrez Nom de la station',
                               prefixIcon: const Icon(Icons.gas_meter),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFormField(
+                            controller: _address,
+                            decoration: InputDecoration(
+                              hintText: "Entrez l'adresse de la station",
+                              prefixIcon: const Icon(Icons.home),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -166,6 +201,8 @@ class _adminIntState extends State<adminInt> {
                             style: ElevatedButton.styleFrom(
                               padding:
                                   const EdgeInsets.fromLTRB(40, 15, 40, 15),
+                              shadowColor: Colors.white,
+                              primary: Color.fromARGB(255, 242, 241, 245),
                             ),
                             child: const Text(
                               'Ajouter',
@@ -190,6 +227,7 @@ class _adminIntState extends State<adminInt> {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     await firebaseFirestore.collection("stations").doc(stationId).set({
       'nom station': _station.text,
+      'adresse': _address.text,
       'locations': GeoPoint(latitude, longitude),
       'prix gasoil': prixg,
       'prix essence': prixe,
@@ -197,7 +235,7 @@ class _adminIntState extends State<adminInt> {
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const LoginPage(title: 'Login UI'),
+        builder: (context) => ajoute(),
       ),
     );
   }
@@ -209,7 +247,7 @@ class _adminIntState extends State<adminInt> {
     // ignore: use_build_context_synchronously
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const LoginPage(title: 'admin UI'),
+        builder: (context) => const LoginPage(title: 'Login UI'),
       ),
     );
   }

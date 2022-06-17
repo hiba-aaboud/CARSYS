@@ -6,14 +6,16 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:station_app/login.dart';
 import 'NavBar.dart';
+import 'bienvenu.dart';
 
-class MyMap extends StatefulWidget {
-  const MyMap({Key? key}) : super(key: key);
+class mapAdmin extends StatefulWidget {
+  mapAdmin({Key? key}) : super(key: key);
+
   @override
-  State<MyMap> createState() => _MyMapState();
+  State<mapAdmin> createState() => _mapAdminState();
 }
 
-class _MyMapState extends State<MyMap> {
+class _mapAdminState extends State<mapAdmin> {
   int selectedIndex = 0;
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
@@ -61,7 +63,8 @@ class _MyMapState extends State<MyMap> {
         drawer: NavBar(),
         appBar: AppBar(
           backgroundColor: Color.fromARGB(255, 2, 35, 84),
-          title: Row(children: const [
+          title:
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
             Text(
               "Gas Station Map",
               style: TextStyle(color: Colors.white),
@@ -70,9 +73,10 @@ class _MyMapState extends State<MyMap> {
           actions: [
             IconButton(
               onPressed: () {
-                logout(context);
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => bienvenu()));
               },
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.person),
             ),
           ],
         ),

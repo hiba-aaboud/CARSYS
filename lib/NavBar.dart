@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'prixe.dart';
 import 'prixg.dart';
+import 'distance.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -40,18 +41,6 @@ class NavBar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => prixg(),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.social_distance),
-            title: Text("Distance"),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => prixe(),
                 ),
               );
             },
